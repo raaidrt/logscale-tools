@@ -53,3 +53,14 @@ def test_long_pipeline_step_wraps() -> None:
     result = format_query(query)
     for line in result.splitlines():
         assert len(line) <= 80, f"Line exceeds 80 chars ({len(line)}): {line!r}"
+
+
+def test_long_implicit_and_filters_wrap() -> None:
+    query = (
+        "#repo=main #is_canonical=true CANONICAL-MANAGE-LINE:"
+        " a=alpha b=beta c=gamma d=delta e=epsilon f=figma"
+    )
+    assert len(query) > 80
+    result = format_query(query)
+    for line in result.splitlines():
+        assert len(line) <= 80, f"Line exceeds 80 chars ({len(line)}): {line!r}"

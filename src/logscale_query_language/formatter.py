@@ -158,19 +158,21 @@ def _find_wrap_point(line: str, limit: int) -> int | None:
     """Find the best position to wrap *line* at or before *limit*.
 
     Preference order:
-      1. After a comma+space inside function arguments (top-level parens).
+      1. After a comma+space inside function arguments.
       2. Before ``AND`` / ``OR`` keywords (with surrounding spaces).
+      3. At a top-level space (not inside parens/brackets/strings).
 
     Returns the character index where the new line should start, or *None*
     if no suitable break point is found.
     """
     depth = 0
     best_comma: int | None = None
+    best_space: int | None = None
     in_string = False
     escape = False
 
     for i, ch in enumerate(line):
-        if i >= limit and (best_comma is not None):
+        if i > limit and best_comma is not None:
             break
 
         if escape:
@@ -191,15 +193,22 @@ def _find_wrap_point(line: str, limit: int) -> int | None:
             depth = max(depth - 1, 0)
 
         if ch == "," and i + 1 < len(line) and i < limit:
-            best_comma = i + 2 if (i + 1 < len(line) and line[i + 1] == " ") else i + 1
+            if i + 1 < len(line) and line[i + 1] == " ":
+                best_comma = i + 2
+            else:
+                best_comma = i + 1
+
+        if ch == " " and depth == 0 and i < limit and i > 0:
+            best_space = i + 1
 
     if best_comma is not None and best_comma <= limit:
         last_good = best_comma
-        for i in range(best_comma, len(line)):
-            if i > limit:
-                break
+        in_str2 = False
+        for i in range(best_comma, min(len(line), limit + 1)):
             ch = line[i]
-            if not in_string and ch == ",":
+            if ch == '"':
+                in_str2 = not in_str2
+            if not in_str2 and ch == ",":
                 if i + 1 < len(line) and line[i + 1] == " ":
                     last_good = i + 2
                 else:
@@ -213,7 +222,10 @@ def _find_wrap_point(line: str, limit: int) -> int | None:
             if best_comma is None or abs(limit - kw_break) < abs(limit - best_comma):
                 return kw_break
 
-    return best_comma
+    if best_comma is not None:
+        return best_comma
+
+    return best_space
 
 
 def _wrap_long_lines(text: str, limit: int = _MAX_LINE_LENGTH) -> str:
