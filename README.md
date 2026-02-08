@@ -7,13 +7,13 @@ query language.
 ## Installation
 
 ```sh
-pip install logscale-tools
+uv tool install logscale-tools
 ```
 
-Or with [uv](https://docs.astral.sh/uv/):
+Or with pip:
 
 ```sh
-uv pip install logscale-tools
+pip install logscale-tools
 ```
 
 A C compiler (`cc` / `gcc` / `clang`) must be available on `PATH` — the
