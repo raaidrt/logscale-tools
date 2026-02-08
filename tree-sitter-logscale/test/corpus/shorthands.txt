@@ -1,0 +1,60 @@
+================================================================================
+Eval shorthand
+================================================================================
+
+x := 1 + 2
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (identifier))
+      (expression
+        (additive_expression
+          (number)
+          (additive_operator)
+          (number))))))
+
+================================================================================
+Eval function shorthand
+================================================================================
+
+x := lower(host)
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_function_shorthand
+      (field_name
+        (identifier))
+      (function_call
+        (function_name
+          (identifier))
+        (function_arguments
+          (unnamed_function_argument
+            (expression
+              (identifier))))))))
+
+================================================================================
+Field shorthand
+================================================================================
+
+host =~ regex("web-.*")
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (field_shorthand
+      (field_name
+        (identifier))
+      (function_call
+        (function_name
+          (identifier))
+        (function_arguments
+          (unnamed_function_argument
+            (expression
+              (quoted_string))))))))

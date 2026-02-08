@@ -1,0 +1,222 @@
+================================================================================
+Case expression
+================================================================================
+
+case { error | count() ; warning | count() }
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (case_expression
+      (pipeline
+        (filter
+          (free_text_pattern
+            (unquoted_pattern)))
+        (function_call
+          (function_name
+            (identifier))))
+      (pipeline
+        (filter
+          (free_text_pattern
+            (unquoted_pattern)))
+        (function_call
+          (function_name
+            (identifier)))))))
+
+================================================================================
+Match expression
+================================================================================
+
+level match { "error" => count() ; * => drop() }
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (match_expression
+      (field_name
+        (unquoted_field_name))
+      (match_pipeline
+        (match_guard
+          (anchored_pattern
+            (quoted_string)))
+        (pipeline
+          (function_call
+            (function_name
+              (identifier)))))
+      (match_pipeline
+        (match_guard)
+        (pipeline
+          (function_call
+            (function_name
+              (identifier))))))))
+
+================================================================================
+Subquery
+================================================================================
+
+x := { error | count() }
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (unquoted_field_name))
+      (expression
+        (subquery
+          (pipeline
+            (filter
+              (free_text_pattern
+                (unquoted_pattern)))
+            (function_call
+              (function_name
+                (identifier)))))))))
+
+================================================================================
+Array expression
+================================================================================
+
+[count(), avg(duration)]
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (stats_shorthand
+      (array_expression
+        (expression
+          (function_call
+            (function_name
+              (identifier))))
+        (expression
+          (function_call
+            (function_name
+              (identifier))
+            (function_arguments
+              (unnamed_function_argument
+                (expression
+                  (identifier))))))))))
+
+================================================================================
+Saved query
+================================================================================
+
+$myQuery()
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (saved_query
+      (unquoted_pattern))))
+
+================================================================================
+Saved query with arguments
+================================================================================
+
+$myQuery(host="server1", limit="100")
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (saved_query
+      (unquoted_pattern)
+      (saved_query_arguments
+        (saved_query_argument
+          (unquoted_pattern)
+          (quoted_string))
+        (saved_query_argument
+          (unquoted_pattern)
+          (quoted_string))))))
+
+================================================================================
+Query parameter
+================================================================================
+
+?param
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (filter
+      (free_text_pattern
+        (query_parameter
+          (unquoted_pattern))))))
+
+================================================================================
+Query parameter with default
+================================================================================
+
+?{param=default}
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (filter
+      (free_text_pattern
+        (query_parameter
+          (unquoted_pattern)
+          (unquoted_pattern))))))
+
+================================================================================
+Comment in pipeline
+================================================================================
+
+// this is a comment
+error | count()
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (comment)
+    (filter
+      (free_text_pattern
+        (unquoted_pattern)))
+    (function_call
+      (function_name
+        (identifier)))))
+
+================================================================================
+Quoted field name
+================================================================================
+
+"my field" = value
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (filter
+      (field_comparison
+        (field_name
+          (quoted_string))
+        (equality_pattern
+          (anchored_pattern
+            (unquoted_pattern)))))))
+
+================================================================================
+Field with array index
+================================================================================
+
+items[0] = "first"
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (filter
+      (field_comparison
+        (field_name
+          (unquoted_field_name
+            (array_index
+              (digits))))
+        (equality_pattern
+          (anchored_pattern
+            (quoted_string)))))))

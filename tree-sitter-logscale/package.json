@@ -1,0 +1,14 @@
+{
+  "name": "tree-sitter-logscale",
+  "version": "0.1.0",
+  "description": "Tree-sitter grammar for the CrowdStrike LogScale query language",
+  "main": "bindings/node",
+  "keywords": ["tree-sitter", "parser", "logscale", "crowdstrike"],
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.18.0"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.24.0"
+  }
+}

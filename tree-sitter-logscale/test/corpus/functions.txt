@@ -1,0 +1,78 @@
+================================================================================
+Function call with no arguments
+================================================================================
+
+count()
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (function_call
+      (function_name
+        (identifier)))))
+
+================================================================================
+Function call with unnamed argument
+================================================================================
+
+count(host)
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (function_call
+      (function_name
+        (identifier))
+      (function_arguments
+        (unnamed_function_argument
+          (expression
+            (identifier)))))))
+
+================================================================================
+Function call with named argument
+================================================================================
+
+groupBy(field=host)
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (function_call
+      (function_name
+        (identifier))
+      (function_arguments
+        (named_function_argument
+          (field_name
+            (identifier))
+          (expression
+            (identifier)))))))
+
+================================================================================
+Function call with multiple arguments
+================================================================================
+
+groupBy(field=host, function=count())
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (function_call
+      (function_name
+        (identifier))
+      (function_arguments
+        (named_function_argument
+          (field_name
+            (identifier))
+          (expression
+            (identifier)))
+        (named_function_argument
+          (field_name
+            (identifier))
+          (expression
+            (function_call
+              (function_name
+                (identifier)))))))))

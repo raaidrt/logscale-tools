@@ -1,0 +1,133 @@
+================================================================================
+Simple arithmetic
+================================================================================
+
+x := a + b
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (identifier))
+      (expression
+        (additive_expression
+          (identifier)
+          (additive_operator)
+          (identifier))))))
+
+================================================================================
+Multiplication precedence
+================================================================================
+
+x := a + b * c
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (identifier))
+      (expression
+        (additive_expression
+          (identifier)
+          (additive_operator)
+          (multiplicative_expression
+            (identifier)
+            (multiplicative_operator)
+            (identifier)))))))
+
+================================================================================
+Comparison expression
+================================================================================
+
+x := a == b
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (identifier))
+      (expression
+        (comparison_expression
+          (identifier)
+          (comparison_operator)
+          (identifier))))))
+
+================================================================================
+Unary negation
+================================================================================
+
+x := -a
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (identifier))
+      (expression
+        (unary_expression
+          (unary_operator)
+          (identifier))))))
+
+================================================================================
+Parenthesized expression
+================================================================================
+
+x := (a + b) * c
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (identifier))
+      (expression
+        (multiplicative_expression
+          (parenthesized_expression
+            (expression
+              (additive_expression
+                (identifier)
+                (additive_operator)
+                (identifier))))
+          (multiplicative_operator)
+          (identifier))))))
+
+================================================================================
+String literal in expression
+================================================================================
+
+x := "hello"
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (identifier))
+      (expression
+        (quoted_string)))))
+
+================================================================================
+Number with decimal
+================================================================================
+
+x := 3.14
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (eval_shorthand
+      (field_name
+        (identifier))
+      (expression
+        (number)))))
