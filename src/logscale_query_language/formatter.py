@@ -154,6 +154,29 @@ def format_query(
 _MAX_LINE_LENGTH = 80
 
 
+_OPERATORS = ("=~", ":=", "!=", "<=", ">=", "=", "<", ">")
+
+
+def _adjacent_to_operator(line: str, space_idx: int) -> bool:
+    """Return True if the space at *space_idx* is next to a comparison operator.
+
+    This prevents wrapping inside ``field = value`` groups.
+    """
+    after = line[space_idx + 1 :]
+    for op in _OPERATORS:
+        if after.startswith(op):
+            return True
+    before = line[:space_idx]
+    for op in _OPERATORS:
+        if before.endswith(op):
+            return True
+    if after.startswith("like ") or after.startswith("like\t"):
+        return True
+    if before.endswith("like"):
+        return True
+    return False
+
+
 def _find_wrap_point(line: str, limit: int) -> int | None:
     """Find the best position to wrap *line* at or before *limit*.
 
@@ -199,7 +222,8 @@ def _find_wrap_point(line: str, limit: int) -> int | None:
                 best_comma = i + 1
 
         if ch == " " and depth == 0 and i < limit and i > 0:
-            best_space = i + 1
+            if not _adjacent_to_operator(line, i):
+                best_space = i + 1
 
     if best_comma is not None and best_comma <= limit:
         last_good = best_comma

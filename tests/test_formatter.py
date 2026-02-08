@@ -64,3 +64,28 @@ def test_long_implicit_and_filters_wrap() -> None:
     result = format_query(query)
     for line in result.splitlines():
         assert len(line) <= 80, f"Line exceeds 80 chars ({len(line)}): {line!r}"
+
+
+def test_field_comparison_not_split_across_lines() -> None:
+    query = (
+        "#repo=main #is_canonical=true CANONICAL-MANAGE-LINE:"
+        " a=alpha b=beta c=gamma d=delta e=epsilon f=figma"
+    )
+    result = format_query(query)
+    for line in result.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        assert not stripped.startswith("= "), (
+            f"Line starts with bare '=', field comparison was split: {line!r}"
+        )
+        assert not stripped.endswith(" ="), (
+            f"Line ends with bare '=', field comparison was split: {line!r}"
+        )
+        for op in ("!=", "<=", ">=", "=~", ":=", "=", "<", ">"):
+            assert not stripped.startswith(op + " "), (
+                f"Line starts with operator '{op}', split mid-comparison: {line!r}"
+            )
+            assert not stripped.endswith(" " + op), (
+                f"Line ends with operator '{op}', split mid-comparison: {line!r}"
+            )
