@@ -1,4 +1,4 @@
-# LogScale Query Language
+# LogScale Tools
 
 A tree-sitter parser and topiary-based formatter for the
 [CrowdStrike LogScale](https://www.crowdstrike.com/products/observability/falcon-logscale/)

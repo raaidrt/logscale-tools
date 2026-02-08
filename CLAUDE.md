@@ -1,4 +1,4 @@
-# LogScale Query Language
+# LogScale Tools
 
 A tree-sitter parser and topiary-based formatter for the CrowdStrike LogScale query language.
 

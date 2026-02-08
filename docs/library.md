@@ -1,6 +1,6 @@
 # Python Library Reference
 
-`logscale-query-language` exposes a Python API for parsing, inspecting, and
+`logscale-tools` exposes a Python API for parsing, inspecting, and
 formatting LogScale queries.
 
 ## Quick Start
