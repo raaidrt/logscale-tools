@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+.env
+*.so
+*.dylib
+
+# Downloaded topiary binary (fetched at build time)
+src/logscale_query_language/bin/
