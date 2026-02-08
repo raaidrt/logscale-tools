@@ -16,7 +16,7 @@
 ; ---------------------------------------------------------------------------
 
 ; Pipeline steps separated by pipes get newlines
-(pipeline "|" @prepend_hardline)
+(pipeline "|" @prepend_hardline @append_space)
 
 ; ---------------------------------------------------------------------------
 ; Case & Match
