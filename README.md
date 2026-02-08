@@ -7,9 +7,8 @@ query language.
 ## Installation
 
 We strongly recommend installing with
-[uv](https://docs.astral.sh/uv/), a fast Python package manager. If you
-don't have uv yet, install it by following the
-[official instructions](https://docs.astral.sh/uv/getting-started/installation/).
+[uv](https://docs.astral.sh/uv/), a fast Python package manager that can
+be [installed with a single command](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```sh
 uv tool install logscale-tools
