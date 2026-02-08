@@ -47,3 +47,22 @@ jobs:
       - run: uv sync --extra dev
       - name: Run tests
         run: uv run pytest
+
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Build wheel
+        run: uv build
+      - name: Install and smoke test
+        run: uv run --isolated --no-project --with dist/*.whl -- logscale-query --version
+        shell: bash

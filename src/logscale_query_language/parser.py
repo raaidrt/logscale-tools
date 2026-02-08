@@ -12,8 +12,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from tree_sitter import Language, Node, Tree
 
-_GRAMMAR_DIR = Path(__file__).resolve().parent.parent.parent / "tree-sitter-logscale"
-_SRC_DIR = _GRAMMAR_DIR / "src"
+_PKG_DIR = Path(__file__).resolve().parent
+_GRAMMAR_SRC_DIR = _PKG_DIR / "grammar_src"
+_DEV_GRAMMAR_DIR = _PKG_DIR.parent.parent / "tree-sitter-logscale" / "src"
+_SRC_DIR = _GRAMMAR_SRC_DIR if _GRAMMAR_SRC_DIR.exists() else _DEV_GRAMMAR_DIR
 _PARSER_C = _SRC_DIR / "parser.c"
 _SCANNER_C = _SRC_DIR / "scanner.c"
 

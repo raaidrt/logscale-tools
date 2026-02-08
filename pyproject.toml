@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "logscale-tools"
-version = "0.1.1"
+version = "0.1.2"
 description = "A tree-sitter parser and topiary-based formatter for the CrowdStrike LogScale query language"
 requires-python = ">=3.14"
 dependencies = ["tree-sitter>=0.23.0"]
@@ -18,6 +18,14 @@ dev = [
     "pyrefly",
     "pytest",
     "ruff",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "tree-sitter-logscale/src/",
+    "hatch_build.py",
+    "pyproject.toml",
 ]
 
 [tool.hatch.build.targets.wheel]
