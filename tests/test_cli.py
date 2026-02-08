@@ -113,6 +113,52 @@ class TestFormatCommand:
         assert "would reformat" in err
 
 
+class TestTokenizeCommand:
+    def test_tokenize_file(self, tmp_path: Path, capsys: pytest.CaptureFixture) -> None:  # type: ignore[type-arg]
+        f = tmp_path / "q.logscale"
+        f.write_text("error | count()")
+        code = _run(["tokenize", "--no-color", str(f)])
+        assert code == 0
+        out = capsys.readouterr().out
+        assert "identifier" in out
+        assert "error" in out
+        assert "count" in out
+
+    def test_tokenize_alias(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture
+    ) -> None:  # type: ignore[type-arg]
+        f = tmp_path / "q.logscale"
+        f.write_text("error")
+        code = _run(["tok", "--no-color", str(f)])
+        assert code == 0
+        out = capsys.readouterr().out
+        assert "identifier" in out
+
+    def test_tokenize_labels_above_tokens(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture
+    ) -> None:  # type: ignore[type-arg]
+        f = tmp_path / "q.logscale"
+        f.write_text("error | count()")
+        _run(["tokenize", "--no-color", str(f)])
+        out = capsys.readouterr().out
+        lines = out.strip().split("\n")
+        assert len(lines) == 2
+        assert "identifier" in lines[0]
+        assert "error" in lines[1]
+
+    def test_tokenize_multiple_files(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture
+    ) -> None:  # type: ignore[type-arg]
+        f1 = tmp_path / "a.logscale"
+        f2 = tmp_path / "b.logscale"
+        f1.write_text("error")
+        f2.write_text("warning")
+        code = _run(["tokenize", "--no-color", str(f1), str(f2)])
+        assert code == 0
+        out = capsys.readouterr().out
+        assert "==> " in out
+
+
 class TestNoCommand:
     def test_no_command_shows_help(self, capsys: pytest.CaptureFixture) -> None:  # type: ignore[type-arg]
         code = _run([])

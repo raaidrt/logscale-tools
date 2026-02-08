@@ -85,7 +85,7 @@ uv run ruff check --fix .
 
 ### CLI
 
-The package installs a `logscale-query` command with three subcommands:
+The package installs a `logscale-query` command with four subcommands:
 
 ```sh
 # Format a file (stdout)
@@ -99,6 +99,9 @@ logscale-query parse query.logscale
 
 # Validate syntax
 logscale-query check query.logscale
+
+# Visualize tokens with colored type labels
+logscale-query tokenize query.logscale
 ```
 
 ## Grammar Reference

@@ -14,8 +14,8 @@ query language.
   tree-sitter.
 - **Python API** — Simple functions to parse, inspect, and format queries from
   Python.
-- **CLI** — `logscale-query` command for formatting files, parsing queries, and
-  validating syntax from the terminal.
+- **CLI** — `logscale-query` command for formatting files, parsing queries,
+  validating syntax, and visualizing tokens from the terminal.
 
 ## Requirements
 
@@ -170,6 +170,27 @@ logscale-query check query.logscale another.lql
 ```
 
 Exit code is 0 if all files are valid, 1 if any contain errors.
+
+### Visualize tokens
+
+Display each token with its type label printed above it, using colored output:
+
+```sh
+logscale-query tokenize query.logscale
+logscale-query tok query.logscale   # "tok" is a shorthand alias
+```
+
+From stdin:
+
+```sh
+echo 'error | count()' | logscale-query tokenize
+```
+
+Disable colors (e.g. for piping):
+
+```sh
+logscale-query tokenize --no-color query.logscale
+```
 
 ## API Reference
 
