@@ -13,3 +13,4 @@ build/
 
 # Downloaded topiary binary (fetched at build time)
 src/logscale_query_language/bin/
+src/logscale_query_language/lib/

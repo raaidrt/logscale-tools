@@ -7,7 +7,10 @@ name = "logscale-query-language"
 version = "0.1.0"
 description = "A tree-sitter parser and topiary-based formatter for the CrowdStrike LogScale query language"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = ["tree-sitter>=0.23.0"]
+
+[project.scripts]
+logscale-query = "logscale_query_language.cli:main"
 
 [project.optional-dependencies]
 dev = [
