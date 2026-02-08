@@ -2,20 +2,42 @@
 
 from __future__ import annotations
 
+import io
+import platform
+import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
+import urllib.request
+import zipfile
 from pathlib import Path
 
-_BIN_DIR = Path(__file__).parent / "bin"
+TOPIARY_VERSION = "v0.7.3"
+TOPIARY_BASE_URL = (
+    f"https://github.com/tweag/topiary/releases/download/{TOPIARY_VERSION}"
+)
+
+PLATFORM_MAP: dict[tuple[str, str], str] = {
+    ("Darwin", "arm64"): "topiary-cli-aarch64-apple-darwin.tar.xz",
+    ("Darwin", "x86_64"): "topiary-cli-x86_64-apple-darwin.tar.xz",
+    ("Linux", "aarch64"): "topiary-cli-aarch64-unknown-linux-gnu.tar.xz",
+    ("Linux", "x86_64"): "topiary-cli-x86_64-unknown-linux-gnu.tar.xz",
+    ("Windows", "AMD64"): "topiary-cli-x86_64-pc-windows-msvc.zip",
+}
+
+_PKG_DIR = Path(__file__).resolve().parent
+_BIN_DIR = _PKG_DIR / "bin"
 _TOPIARY_BIN = _BIN_DIR / ("topiary.exe" if sys.platform == "win32" else "topiary")
-_QUERIES_DIR = Path(__file__).resolve().parent / "queries"
+_QUERIES_DIR = _PKG_DIR / "queries"
 _DEFAULT_QUERY_FILE = _QUERIES_DIR / "logscale.scm"
 
+_GRAMMAR_SRC_DIR = _PKG_DIR / "grammar_src"
+_DEV_GRAMMAR_SRC_DIR = _PKG_DIR.parent.parent / "tree-sitter-logscale" / "src"
 _GRAMMAR_SRC_DIR = (
-    Path(__file__).resolve().parent.parent.parent / "tree-sitter-logscale" / "src"
+    _GRAMMAR_SRC_DIR if _GRAMMAR_SRC_DIR.exists() else _DEV_GRAMMAR_SRC_DIR
 )
-_LIB_DIR = Path(__file__).resolve().parent / "lib"
+_LIB_DIR = _PKG_DIR / "lib"
 _LIB_EXT = ".dylib" if sys.platform == "darwin" else ".so"
 _LIB_PATH = _LIB_DIR / f"logscale{_LIB_EXT}"
 
@@ -70,17 +92,69 @@ def _build_grammar() -> Path:
     return _LIB_PATH
 
 
+def _get_asset_name() -> str:
+    system = platform.system()
+    machine = platform.machine()
+    key = (system, machine)
+    if key not in PLATFORM_MAP:
+        raise RuntimeError(
+            f"Unsupported platform: {system} {machine}. "
+            f"Supported platforms: {list(PLATFORM_MAP.keys())}"
+        )
+    return PLATFORM_MAP[key]
+
+
+def _download_topiary(dest_dir: Path) -> Path:
+    """Download and extract the topiary binary into dest_dir."""
+    asset_name = _get_asset_name()
+    url = f"{TOPIARY_BASE_URL}/{asset_name}"
+
+    print(f"Downloading topiary {TOPIARY_VERSION} from {url}")
+    response = urllib.request.urlopen(url)  # noqa: S310
+    data = response.read()
+
+    archive_binary = "topiary.exe" if platform.system() == "Windows" else "topiary"
+    dest_binary = archive_binary
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    if asset_name.endswith(".zip"):
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
+            for member in zf.namelist():
+                if member.endswith(archive_binary):
+                    extracted = dest_dir / dest_binary
+                    extracted.write_bytes(zf.read(member))
+                    break
+            else:
+                raise RuntimeError(f"{archive_binary} not found in {asset_name}")
+    else:
+        with tarfile.open(fileobj=io.BytesIO(data), mode="r:xz") as tf:
+            for member in tf.getmembers():
+                if member.name.endswith(f"/{archive_binary}"):
+                    f = tf.extractfile(member)
+                    if f is None:
+                        raise RuntimeError(f"Could not extract {member.name}")
+                    extracted = dest_dir / dest_binary
+                    extracted.write_bytes(f.read())
+                    break
+            else:
+                raise RuntimeError(f"{archive_binary} not found in {asset_name}")
+
+    binary_path = dest_dir / dest_binary
+    binary_path.chmod(binary_path.stat().st_mode | stat.S_IEXEC)
+    return binary_path
+
+
 def get_topiary_path() -> Path:
-    """Return the path to the bundled topiary-cli binary.
+    """Return the path to the topiary-cli binary, downloading on first use.
+
+    Returns:
+        Path to the topiary binary.
 
     Raises:
-        FileNotFoundError: If the binary has not been installed.
+        RuntimeError: If the platform is unsupported or download fails.
     """
     if not _TOPIARY_BIN.exists():
-        raise FileNotFoundError(
-            f"topiary-cli not found at {_TOPIARY_BIN}. "
-            "Run `uv build` or `pip install -e .` to download it."
-        )
+        _download_topiary(_BIN_DIR)
     return _TOPIARY_BIN
 
 
