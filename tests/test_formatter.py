@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from logscale_query_language.formatter import (
     _DEFAULT_QUERY_FILE,
+    format_query,
     get_topiary_path,
 )
 
@@ -15,3 +16,40 @@ def test_query_file_exists() -> None:
 def test_get_topiary_path() -> None:
     path = get_topiary_path()
     assert path.exists()
+
+
+def test_long_function_args_wrap() -> None:
+    query = (
+        'foo = "bar"'
+        " | groupBy(field=[host, source, sourcetype],"
+        " function=[count(), sum(bytes), avg(duration)])"
+    )
+    result = format_query(query)
+    for line in result.splitlines():
+        assert len(line) <= 80, f"Line exceeds 80 chars ({len(line)}): {line!r}"
+
+
+def test_long_filter_wraps() -> None:
+    query = (
+        'status = "error" AND host = "webserver01.example.com"'
+        ' AND source = "/var/log/application/debug.log"'
+    )
+    result = format_query(query)
+    for line in result.splitlines():
+        assert len(line) <= 80, f"Line exceeds 80 chars ({len(line)}): {line!r}"
+
+
+def test_short_line_no_wrap() -> None:
+    query = 'foo = "bar" | count()'
+    result = format_query(query)
+    assert result.strip() == 'foo = "bar"\n| count()'
+
+
+def test_long_pipeline_step_wraps() -> None:
+    query = (
+        "| sort(order=desc, field=_count, limit=100,"
+        ' type="alphabetical", locale="en_US")'
+    )
+    result = format_query(query)
+    for line in result.splitlines():
+        assert len(line) <= 80, f"Line exceeds 80 chars ({len(line)}): {line!r}"

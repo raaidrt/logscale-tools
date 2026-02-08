@@ -148,7 +148,107 @@ def format_query(
             f"topiary exited with code {result.returncode}: {result.stderr}"
         )
 
-    return result.stdout
+    return _wrap_long_lines(result.stdout)
+
+
+_MAX_LINE_LENGTH = 80
+
+
+def _find_wrap_point(line: str, limit: int) -> int | None:
+    """Find the best position to wrap *line* at or before *limit*.
+
+    Preference order:
+      1. After a comma+space inside function arguments (top-level parens).
+      2. Before ``AND`` / ``OR`` keywords (with surrounding spaces).
+
+    Returns the character index where the new line should start, or *None*
+    if no suitable break point is found.
+    """
+    depth = 0
+    best_comma: int | None = None
+    in_string = False
+    escape = False
+
+    for i, ch in enumerate(line):
+        if i >= limit and (best_comma is not None):
+            break
+
+        if escape:
+            escape = False
+            continue
+        if ch == "\\":
+            escape = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+
+        if ch == "(" or ch == "[":
+            depth += 1
+        elif ch == ")" or ch == "]":
+            depth = max(depth - 1, 0)
+
+        if ch == "," and i + 1 < len(line) and i < limit:
+            best_comma = i + 2 if (i + 1 < len(line) and line[i + 1] == " ") else i + 1
+
+    if best_comma is not None and best_comma <= limit:
+        last_good = best_comma
+        for i in range(best_comma, len(line)):
+            if i > limit:
+                break
+            ch = line[i]
+            if not in_string and ch == ",":
+                if i + 1 < len(line) and line[i + 1] == " ":
+                    last_good = i + 2
+                else:
+                    last_good = i + 1
+        best_comma = last_good
+
+    for keyword in (" AND ", " OR "):
+        idx = line.rfind(keyword, 0, limit + 1)
+        if idx != -1:
+            kw_break = idx + 1
+            if best_comma is None or abs(limit - kw_break) < abs(limit - best_comma):
+                return kw_break
+
+    return best_comma
+
+
+def _wrap_long_lines(text: str, limit: int = _MAX_LINE_LENGTH) -> str:
+    """Wrap lines exceeding *limit* characters."""
+    result_lines: list[str] = []
+    for line in text.split("\n"):
+        if len(line) <= limit:
+            result_lines.append(line)
+            continue
+
+        indent = len(line) - len(line.lstrip())
+        continuation_indent = indent + 2
+
+        first_paren = -1
+        in_str = False
+        for i, ch in enumerate(line):
+            if ch == '"':
+                in_str = not in_str
+            elif not in_str and ch == "(":
+                first_paren = i
+                break
+
+        if first_paren != -1:
+            continuation_indent = first_paren + 1
+
+        remaining = line
+        while len(remaining) > limit:
+            wp = _find_wrap_point(remaining, limit)
+            if wp is None or wp <= indent:
+                break
+            result_lines.append(remaining[:wp].rstrip())
+            remaining = " " * continuation_indent + remaining[wp:].lstrip()
+        result_lines.append(remaining)
+
+    return "\n".join(result_lines)
 
 
 def _make_topiary_config(grammar_path: Path) -> str:
