@@ -8,7 +8,8 @@ A tree-sitter parser and topiary-based formatter for the CrowdStrike LogScale qu
 logscale_query_language/
 ├── CLAUDE.md                 # This file
 ├── grammar.md                # BNF grammar specification for LogScale queries
-├── pyproject.toml            # Project config (hatchling, pyrefly, pytest)
+├── .pre-commit-config.yaml   # Pre-commit hooks (ruff lint + format)
+├── pyproject.toml            # Project config (hatchling, pyrefly, pytest, ruff)
 ├── hatch_build.py            # Custom build hook — downloads topiary binary
 ├── .python-version           # Pins Python 3.14
 ├── src/
@@ -28,6 +29,8 @@ logscale_query_language/
 - **Package manager**: uv
 - **Build backend**: hatchling with a custom build hook (`hatch_build.py`)
 - **Type checker**: pyrefly (configured in `[tool.pyrefly]` in `pyproject.toml`)
+- **Formatter/linter**: ruff (line-length 88, lint rules: E, F, I, UP)
+- **Pre-commit**: runs `ruff --fix` and `ruff format` on every commit
 
 ### How the build works
 
@@ -35,7 +38,7 @@ logscale_query_language/
 2. The hook detects the current platform (macOS arm64/x86_64, Linux arm64/x86_64, Windows x86_64).
 3. It downloads the matching topiary-cli v0.7.3 binary from https://github.com/tweag/topiary/releases/tag/v0.7.3.
 4. The binary is extracted into `src/logscale_query_language/bin/` and bundled into the wheel.
-5. At runtime, `formatter.py` locates the binary via `Path(__file__).parent / "bin" / "topiary-cli"`.
+5. At runtime, `formatter.py` locates the binary via `Path(__file__).parent / "bin" / "topiary"`.
 
 ### Commands
 
@@ -51,6 +54,12 @@ uv run pytest
 
 # Type check
 uv run pyrefly check
+
+# Format code
+uv run ruff format .
+
+# Lint (with auto-fix)
+uv run ruff check --fix .
 ```
 
 ## Grammar Reference
