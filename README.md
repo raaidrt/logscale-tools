@@ -9,12 +9,13 @@ query language.
 We strongly recommend installing with
 [uv](https://docs.astral.sh/uv/), a fast Python package manager that can
 be [installed with a single command](https://docs.astral.sh/uv/getting-started/installation/).
+Then, install `logscale-tools` with
 
 ```sh
 uv tool install logscale-tools
 ```
 
-Alternatively, install with pip:
+Alternatively, install with pip (requires Python 3.14+ to be installed on your system):
 
 ```sh
 pip install logscale-tools
