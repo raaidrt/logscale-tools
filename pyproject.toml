@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "logscale-query-language"
-version = "0.1.0"
+name = "logscale-tools"
+version = "0.1.1"
 description = "A tree-sitter parser and topiary-based formatter for the CrowdStrike LogScale query language"
 requires-python = ">=3.14"
 dependencies = ["tree-sitter>=0.23.0"]
