@@ -6,13 +6,14 @@
 const UNQUOTED_FIELD_NAME_CHAR =
   /[#%&.0-9@A-Z\\^_a-z\u00A1-\u00AA\u00AE-\u00BA\u00BC-\u00FF]/;
 
-// UnquotedPatternChar: all of UnquotedFieldNameChar plus *, +, -, :, ~, ¬
-// Used only when pattern-specific characters are present.
-const UNQUOTED_PATTERN_CHAR =
-  /[#%&*.+\-:~0-9@A-Z\\^_a-z\u00A1-\u00AA\u00AC\u00AE-\u00BA\u00BC-\u00FF]/;
+// UnquotedPatternChar WITHOUT colon: all of UnquotedFieldNameChar plus *, +, -, ~, ¬
+// Colon is handled at the grammar rule level to avoid lexer greediness conflicts
+// with := (eval shorthand) and namespaced function names (text:contains).
+const UNQUOTED_PATTERN_CHAR_NO_COLON =
+  /[#%&*.+\-~0-9@A-Z\\^_a-z\u00A1-\u00AA\u00AC\u00AE-\u00BA\u00BC-\u00FF]/;
 
-// Characters that distinguish a pattern from an identifier
-const PATTERN_EXTRA_CHAR = /[*+\-:~\u00AC]/;
+// Characters that distinguish a pattern segment from an identifier (excluding colon)
+const PATTERN_EXTRA_CHAR = /[*+\-~\u00AC]/;
 
 // Precedence levels (from grammar.md Appendix C)
 const PREC = {
@@ -114,9 +115,6 @@ module.exports = grammar({
       ),
 
     // Section 3: Patterns
-    // free_text_pattern: in filter context, a bare word like "error" is a text search.
-    // Since identifier and unquoted_pattern overlap on field-name-only chars,
-    // we accept both token types here.
     free_text_pattern: ($) =>
       choice(
         $.unquoted_pattern,
@@ -359,14 +357,29 @@ module.exports = grammar({
     number: (_) =>
       token(prec(1, seq(/[0-9]+/, optional(seq(".", /[0-9]+/))))),
 
-    // unquoted_pattern: tokens containing at least one pattern-extra character
-    // (*, +, -, :, ~, ¬). Pure field-name-char tokens are lexed as identifier.
-    unquoted_pattern: (_) =>
+    // unquoted_pattern: composed of segments joined by colons.
+    // Colon is excluded from the token-level pattern chars to prevent
+    // the lexer from greedily consuming e.g. "a:" before ":=" can be matched.
+    // A pattern segment is a token containing at least one pattern-extra char
+    // (*, +, -, ~, ¬) but no colon.
+    _pattern_segment: ($) =>
+      choice($._unquoted_pattern_segment, $.identifier),
+
+    _unquoted_pattern_segment: (_) =>
       token(
         seq(
-          repeat(UNQUOTED_PATTERN_CHAR),
+          repeat(UNQUOTED_PATTERN_CHAR_NO_COLON),
           PATTERN_EXTRA_CHAR,
-          repeat(UNQUOTED_PATTERN_CHAR),
+          repeat(UNQUOTED_PATTERN_CHAR_NO_COLON),
+        ),
+      ),
+
+    unquoted_pattern: ($) =>
+      choice(
+        $._unquoted_pattern_segment,
+        seq(
+          $._pattern_segment,
+          repeat1(seq(":", optional($._pattern_segment))),
         ),
       ),
 

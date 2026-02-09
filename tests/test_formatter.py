@@ -66,6 +66,16 @@ def test_long_implicit_and_filters_wrap() -> None:
         assert len(line) <= 80, f"Line exceeds 80 chars ({len(line)}): {line!r}"
 
 
+def test_namespaced_function_in_eval_shorthand() -> None:
+    query = (
+        "#repo=main #is_canonical=true CANONICAL-SERVICE-LINE:"
+        ' | a:=if(text:contains(field_name, substring="Substr"), then=1, else=0)'
+    )
+    result = format_query(query)
+    assert "text:contains" in result
+    assert "a :=" in result or "a:=" in result
+
+
 def test_field_comparison_not_split_across_lines() -> None:
     query = (
         "#repo=main #is_canonical=true CANONICAL-MANAGE-LINE:"

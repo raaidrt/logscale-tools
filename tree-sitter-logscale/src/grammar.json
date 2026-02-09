@@ -1459,7 +1459,20 @@
         }
       }
     },
-    "unquoted_pattern": {
+    "_pattern_segment": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_unquoted_pattern_segment"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "identifier"
+        }
+      ]
+    },
+    "_unquoted_pattern_segment": {
       "type": "TOKEN",
       "content": {
         "type": "SEQ",
@@ -1468,22 +1481,64 @@
             "type": "REPEAT",
             "content": {
               "type": "PATTERN",
-              "value": "[#%&*.+\\-:~0-9@A-Z\\\\^_a-z\\u00A1-\\u00AA\\u00AC\\u00AE-\\u00BA\\u00BC-\\u00FF]"
+              "value": "[#%&*.+\\-~0-9@A-Z\\\\^_a-z\\u00A1-\\u00AA\\u00AC\\u00AE-\\u00BA\\u00BC-\\u00FF]"
             }
           },
           {
             "type": "PATTERN",
-            "value": "[*+\\-:~\\u00AC]"
+            "value": "[*+\\-~\\u00AC]"
           },
           {
             "type": "REPEAT",
             "content": {
               "type": "PATTERN",
-              "value": "[#%&*.+\\-:~0-9@A-Z\\\\^_a-z\\u00A1-\\u00AA\\u00AC\\u00AE-\\u00BA\\u00BC-\\u00FF]"
+              "value": "[#%&*.+\\-~0-9@A-Z\\\\^_a-z\\u00A1-\\u00AA\\u00AC\\u00AE-\\u00BA\\u00BC-\\u00FF]"
             }
           }
         ]
       }
+    },
+    "unquoted_pattern": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_unquoted_pattern_segment"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_pattern_segment"
+            },
+            {
+              "type": "REPEAT1",
+              "content": {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": ":"
+                  },
+                  {
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "_pattern_segment"
+                      },
+                      {
+                        "type": "BLANK"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
     },
     "regex": {
       "type": "SEQ",

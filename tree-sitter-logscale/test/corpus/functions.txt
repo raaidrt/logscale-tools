@@ -99,6 +99,64 @@ array:append(arr, values=["a"])
                 (quoted_string)))))))))
 
 ================================================================================
+Namespaced function in eval shorthand with if()
+================================================================================
+
+#repo=main #is_canonical=true CANONICAL-SERVICE-LINE: | a:=if(text:contains(field_name, substring="Substr"), then=1, else=0)
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (filter
+      (and_filter
+        (field_comparison
+          (field_name
+            (identifier))
+          (equality_pattern
+            (anchored_pattern
+              (identifier))))
+        (field_comparison
+          (field_name
+            (identifier))
+          (equality_pattern
+            (anchored_pattern
+              (identifier))))
+        (free_text_pattern
+          (unquoted_pattern))))
+    (eval_function_shorthand
+      (field_name
+        (identifier))
+      (function_call
+        (function_name
+          (identifier))
+        (function_arguments
+          (unnamed_function_argument
+            (expression
+              (function_call
+                (function_name
+                  (namespaced_identifier))
+                (function_arguments
+                  (unnamed_function_argument
+                    (expression
+                      (identifier)))
+                  (named_function_argument
+                    (field_name
+                      (identifier))
+                    (expression
+                      (quoted_string)))))))
+          (named_function_argument
+            (field_name
+              (identifier))
+            (expression
+              (number)))
+          (named_function_argument
+            (field_name
+              (identifier))
+            (expression
+              (number))))))))
+
+================================================================================
 Function call with multiple arguments
 ================================================================================
 

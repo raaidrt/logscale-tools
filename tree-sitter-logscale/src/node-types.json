@@ -1114,6 +1114,21 @@
     }
   },
   {
+    "type": "unquoted_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "!",
     "named": false
   },
@@ -1279,10 +1294,6 @@
   },
   {
     "type": "true_literal",
-    "named": true
-  },
-  {
-    "type": "unquoted_pattern",
     "named": true
   },
   {
