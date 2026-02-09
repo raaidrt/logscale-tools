@@ -47,7 +47,8 @@ def test_short_line_no_wrap() -> None:
 
 def test_long_pipeline_step_wraps() -> None:
     query = (
-        "| sort(order=desc, field=_count, limit=100,"
+        'foo = "bar"'
+        " | sort(order=desc, field=_count, limit=100,"
         ' type="alphabetical", locale="en_US")'
     )
     result = format_query(query)
