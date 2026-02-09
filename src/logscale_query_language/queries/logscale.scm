@@ -39,12 +39,26 @@
 (match_pipeline "=>" @prepend_space @append_space)
 
 ; ---------------------------------------------------------------------------
+; Function calls: indent args when multiline
+; ---------------------------------------------------------------------------
+
+(function_call "(" @append_empty_softline @append_indent_start)
+(function_call ")" @prepend_indent_end @prepend_empty_softline)
+
+; ---------------------------------------------------------------------------
+; Arrays: indent elements when multiline
+; ---------------------------------------------------------------------------
+
+(array_expression "[" @append_empty_softline @append_indent_start)
+(array_expression "]" @prepend_indent_end @prepend_empty_softline)
+
+; ---------------------------------------------------------------------------
 ; Subqueries
 ; ---------------------------------------------------------------------------
 
-; Space around subquery braces
-(subquery "{" @prepend_space @append_space)
-(subquery "}" @prepend_space)
+; Space before opening brace, indent when multiline
+(subquery "{" @prepend_space @append_empty_softline @append_indent_start)
+(subquery "}" @prepend_indent_end @prepend_empty_softline)
 
 ; ---------------------------------------------------------------------------
 ; Field comparisons
@@ -98,11 +112,14 @@
 (parenthesized_filter "(" @append_empty_softline)
 (parenthesized_filter ")" @prepend_empty_softline)
 
+; Spaces around = in named function arguments
+(named_function_argument "=" @prepend_space @append_space)
+
 ; ---------------------------------------------------------------------------
 ; Function calls & commas
 ; ---------------------------------------------------------------------------
 
-; Commas followed by space
-(function_arguments "," @append_space)
-(saved_query_arguments "," @append_space)
-(array_expression "," @append_space)
+; Commas: space in single-line, newline in multi-line
+(function_arguments "," @append_spaced_softline)
+(saved_query_arguments "," @append_spaced_softline)
+(array_expression "," @append_spaced_softline)

@@ -158,6 +158,40 @@ def get_topiary_path() -> Path:
     return _TOPIARY_BIN
 
 
+def _run_topiary(
+    text: str,
+    scm_path: Path,
+    cfg_path: str,
+    topiary: Path,
+) -> str:
+    """Run topiary once on *text* and return the formatted output."""
+    cmd = [
+        str(topiary),
+        "format",
+        "--language",
+        "logscale",
+        "--query",
+        str(scm_path),
+        "--configuration",
+        cfg_path,
+        "--skip-idempotence",
+    ]
+
+    result = subprocess.run(
+        cmd,
+        input=text,
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"topiary exited with code {result.returncode}: {result.stderr}"
+        )
+
+    return result.stdout
+
+
 def format_query(
     query: str,
     *,
@@ -196,33 +230,13 @@ def format_query(
         cfg_path = cfg_file.name
 
     try:
-        cmd = [
-            str(topiary),
-            "format",
-            "--language",
-            "logscale",
-            "--query",
-            str(scm_path),
-            "--configuration",
-            cfg_path,
-            "--skip-idempotence",
-        ]
-
-        result = subprocess.run(
-            cmd,
-            input=query,
-            capture_output=True,
-            text=True,
-        )
+        pass1 = _run_topiary(query, scm_path, cfg_path, topiary)
+        wrapped = _wrap_long_lines(pass1)
+        pass2 = _run_topiary(wrapped, scm_path, cfg_path, topiary)
     finally:
         Path(cfg_path).unlink(missing_ok=True)
 
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"topiary exited with code {result.returncode}: {result.stderr}"
-        )
-
-    return _wrap_long_lines(result.stdout)
+    return _wrap_long_lines(pass2)
 
 
 _MAX_LINE_LENGTH = 80
