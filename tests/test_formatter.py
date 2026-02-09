@@ -77,6 +77,22 @@ def test_namespaced_function_in_eval_shorthand() -> None:
     assert "a :=" in result or "a:=" in result
 
 
+def test_deeply_nested_long_lines_do_not_hang() -> None:
+    inner = " | ".join(
+        f"xf_{i} := if(in(field=zcode, values=[zvar_{i}]), then=1, else=0)"
+        for i in range(40)
+    )
+    query = (
+        f"#src=omega #flag=on TAG-MARKER: xyz = 999\n"
+        f"| groupBy([mkey], function={{\n{inner}\n}})"
+    )
+    from logscale_query_language.formatter import _wrap_long_lines
+
+    result = _wrap_long_lines(query)
+    assert isinstance(result, str)
+    assert len(result) > 0
+
+
 def test_field_comparison_not_split_across_lines() -> None:
     query = (
         "#repo=main #is_canonical=true CANONICAL-MANAGE-LINE:"

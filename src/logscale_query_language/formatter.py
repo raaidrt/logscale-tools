@@ -349,13 +349,20 @@ def _wrap_long_lines(text: str, limit: int = _MAX_LINE_LENGTH) -> str:
         if first_paren != -1:
             continuation_indent = first_paren + 1
 
+        if continuation_indent > limit // 2:
+            continuation_indent = indent + 2
+
         remaining = line
+        prev_remaining: str | None = None
         while len(remaining) > limit:
             wp = _find_wrap_point(remaining, limit)
             if wp is None or wp <= indent:
                 break
             result_lines.append(remaining[:wp].rstrip())
             remaining = " " * continuation_indent + remaining[wp:].lstrip()
+            if remaining == prev_remaining:
+                break
+            prev_remaining = remaining
         result_lines.append(remaining)
 
     return "\n".join(result_lines)
