@@ -106,14 +106,16 @@
 ; Spaces around shorthand operators
 (eval_shorthand ":=" @prepend_space @append_space)
 (eval_function_shorthand ":=" @prepend_space @append_space)
+(array_eval_function_shorthand ":=" @prepend_space @append_space)
 (field_shorthand "=~" @prepend_space @append_space)
 
 ; Parenthesized expressions — spaces inside parens are handled by default
 (parenthesized_filter "(" @append_empty_softline)
 (parenthesized_filter ")" @prepend_empty_softline)
 
-; Spaces around = in named function arguments
+; Spaces around = in named function arguments and saved query arguments
 (named_function_argument "=" @prepend_space @append_space)
+(saved_query_argument "=" @prepend_space @append_space)
 
 ; ---------------------------------------------------------------------------
 ; Function calls & commas
