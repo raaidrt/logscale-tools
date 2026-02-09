@@ -51,6 +51,54 @@ groupBy(field=host)
             (identifier)))))))
 
 ================================================================================
+Namespaced function call (text:contains)
+================================================================================
+
+text:contains(field_name, substring="Substr")
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (function_call
+      (function_name
+        (namespaced_identifier))
+      (function_arguments
+        (unnamed_function_argument
+          (expression
+            (identifier)))
+        (named_function_argument
+          (field_name
+            (identifier))
+          (expression
+            (quoted_string)))))))
+
+================================================================================
+Namespaced function call (array:append)
+================================================================================
+
+array:append(arr, values=["a"])
+
+--------------------------------------------------------------------------------
+
+(query
+  (pipeline
+    (function_call
+      (function_name
+        (namespaced_identifier))
+      (function_arguments
+        (unnamed_function_argument
+          (expression
+            (identifier)))
+        (named_function_argument
+          (field_name
+            (identifier))
+          (expression
+            (array_expression
+              (expression
+                (quoted_string)))))))))
+
+================================================================================
 Function call with multiple arguments
 ================================================================================
 

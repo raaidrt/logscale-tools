@@ -210,7 +210,17 @@ module.exports = grammar({
     function_call: ($) =>
       seq($.function_name, "(", optional($.function_arguments), ")"),
 
-    function_name: ($) => $.identifier,
+    function_name: ($) =>
+      choice($.namespaced_identifier, $.identifier),
+
+    namespaced_identifier: (_) =>
+      token(
+        prec(2, seq(
+          repeat1(UNQUOTED_FIELD_NAME_CHAR),
+          ":",
+          repeat1(UNQUOTED_FIELD_NAME_CHAR),
+        )),
+      ),
 
     function_arguments: ($) =>
       seq($._function_argument, repeat(seq(",", $._function_argument))),

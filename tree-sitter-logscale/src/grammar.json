@@ -756,8 +756,47 @@
       ]
     },
     "function_name": {
-      "type": "SYMBOL",
-      "name": "identifier"
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "namespaced_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "identifier"
+        }
+      ]
+    },
+    "namespaced_identifier": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 2,
+        "content": {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "REPEAT1",
+              "content": {
+                "type": "PATTERN",
+                "value": "[#%&.0-9@A-Z\\\\^_a-z\\u00A1-\\u00AA\\u00AE-\\u00BA\\u00BC-\\u00FF]"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": ":"
+            },
+            {
+              "type": "REPEAT1",
+              "content": {
+                "type": "PATTERN",
+                "value": "[#%&.0-9@A-Z\\\\^_a-z\\u00A1-\\u00AA\\u00AE-\\u00BA\\u00BC-\\u00FF]"
+              }
+            }
+          ]
+        }
+      }
     },
     "function_arguments": {
       "type": "SEQ",

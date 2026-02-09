@@ -127,7 +127,7 @@ BareWord                ::= FieldName | UnquotedPattern
 ```bnf
 FunctionCall          ::= FunctionName '(' FunctionArguments? ')'
 
-FunctionName          ::= Identifier
+FunctionName          ::= Identifier ( ':' Identifier )?
 
 FunctionArguments     ::= FunctionArgument ( ',' FunctionArgument )*
 

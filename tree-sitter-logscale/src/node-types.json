@@ -559,6 +559,10 @@
         {
           "type": "identifier",
           "named": true
+        },
+        {
+          "type": "namespaced_identifier",
+          "named": true
         }
       ]
     }
@@ -1252,6 +1256,10 @@
   {
     "type": "match",
     "named": false
+  },
+  {
+    "type": "namespaced_identifier",
+    "named": true
   },
   {
     "type": "number",
